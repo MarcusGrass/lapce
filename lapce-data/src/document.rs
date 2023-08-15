@@ -60,6 +60,7 @@ use crate::{
     proxy::LapceProxy,
     selection_range::{SelectionRangeDirection, SyntaxSelectionRanges},
 };
+use crate::command::CommandExecuted;
 
 pub struct SystemClipboard {}
 
@@ -1677,7 +1678,8 @@ impl Document {
         cursor: &mut Cursor,
         motion_mode: MotionMode,
         register: &mut Register,
-    ) {
+        count: usize,
+    ) -> CommandExecuted {
         if let Some(m) = &cursor.motion_mode {
             if m == &motion_mode {
                 let offset = cursor.offset();
@@ -1689,12 +1691,15 @@ impl Document {
                     offset,
                     true,
                     register,
+                    count,
                 );
                 self.apply_deltas(&deltas);
             }
             cursor.motion_mode = None;
+            CommandExecuted::Yes
         } else {
             cursor.motion_mode = Some(motion_mode);
+            CommandExecuted::No
         }
     }
 
@@ -2537,6 +2542,7 @@ impl Document {
                         end,
                         movement.is_vertical(),
                         register,
+                        count,
                     );
                     self.apply_deltas(&deltas);
                     cursor.motion_mode = None;

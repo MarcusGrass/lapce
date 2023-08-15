@@ -2622,6 +2622,7 @@ impl LapceEditorBufferData {
         &mut self,
         _ctx: &mut EventCtx,
         cmd: &MotionModeCommand,
+        count: Option<usize>,
     ) -> CommandExecuted {
         let motion_mode = match cmd {
             MotionModeCommand::MotionModeDelete => MotionMode::Delete,
@@ -2632,8 +2633,7 @@ impl LapceEditorBufferData {
         let cursor = &mut Arc::make_mut(&mut self.editor).cursor;
         let doc = Arc::make_mut(&mut self.doc);
         let register = Arc::make_mut(&mut self.main_split.register);
-        doc.do_motion_mode(cursor, motion_mode, register);
-        CommandExecuted::Yes
+        doc.do_motion_mode(cursor, motion_mode, register, count.unwrap_or(1))
     }
 
     fn run_multi_selection_command(
@@ -2759,7 +2759,7 @@ impl KeyPressFocus for LapceEditorBufferData {
                 self.run_move_command(ctx, &movement, count, mods)
             }
             CommandKind::Focus(cmd) => self.run_focus_command(ctx, cmd, count, mods),
-            CommandKind::MotionMode(cmd) => self.run_motion_mode_command(ctx, cmd),
+            CommandKind::MotionMode(cmd) => self.run_motion_mode_command(ctx, cmd, count),
             CommandKind::MultiSelection(cmd) => {
                 self.run_multi_selection_command(ctx, cmd)
             }

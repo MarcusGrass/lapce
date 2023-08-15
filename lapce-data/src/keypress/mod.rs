@@ -380,17 +380,20 @@ impl KeyPressData {
         match keymatch {
             KeymapMatch::Full(command) => {
                 self.pending_keypress.clear();
-                let count = self.count.take();
-                self.run_command(ctx, &command, count, mods, focus, env);
+                let count = self.count;
+                if CommandExecuted::Yes == self.run_command(ctx, &command, count, mods, focus, env) {
+                    self.count.take();
+                }
                 return true;
             }
             KeymapMatch::Multiple(commands) => {
                 self.pending_keypress.clear();
-                let count = self.count.take();
+                let count = self.count;
                 for command in commands {
                     if self.run_command(ctx, &command, count, mods, focus, env)
                         == CommandExecuted::Yes
                     {
+                        self.count.take();
                         return true;
                     }
                 }
