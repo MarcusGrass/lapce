@@ -457,8 +457,9 @@ impl Editor {
                 deltas.push((delta, inval_lines, edits));
             }
             MotionMode::Yank => {
-                let (start, end) =
-                    format_start_end(buffer, start, end, is_vertical, false);
+                let start_line = buffer.line_of_offset(start.min(end));
+                let start = buffer.offset_of_line(start_line);
+                let end = buffer.offset_of_line(start_line + count);
                 register.add(
                     RegisterKind::Yank,
                     RegisterData {
